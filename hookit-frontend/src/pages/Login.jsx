@@ -2,6 +2,7 @@
 // Login Page — Google OAuth via Supabase
 // ═══════════════════════════════════════════════
 
+import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 
 function GoogleIcon() {
@@ -15,28 +16,92 @@ function GoogleIcon() {
   )
 }
 
+function ShieldIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  )
+}
+
+function ScanIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+  )
+}
+
+function ZapIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+  )
+}
+
+const FEATURES = [
+  { icon: <ShieldIcon />, title: 'Real-Time Protection',  desc: 'Every email scanned before it reaches you' },
+  { icon: <ScanIcon />,   title: '3-Engine Analysis',     desc: 'URL scanning, header checks & Claude AI' },
+  { icon: <ZapIcon />,    title: 'Instant Dashboard',     desc: 'Live stats, charts & quarantine inbox' },
+]
+
 export default function Login() {
+  const [signingIn, setSigningIn] = useState(false)
+
   const handleGoogleLogin = async () => {
+    setSigningIn(true)
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: window.location.origin,
       },
     })
   }
 
   return (
     <div className="login-page">
-      <div className="login-card">
+      {/* Animated background orbs */}
+      <div className="login-bg-orb login-bg-orb-1" />
+      <div className="login-bg-orb login-bg-orb-2" />
+      <div className="login-bg-orb login-bg-orb-3" />
+
+      <div className="login-card fade-in">
         <div className="login-logo">🪝</div>
         <h1>HookIT</h1>
         <p className="login-tagline">
           AI-powered email phishing detection.<br />
           Protect your inbox in real time.
         </p>
-        <button onClick={handleGoogleLogin} className="google-btn">
-          <GoogleIcon />
-          Continue with Google
+
+        <div className="login-features">
+          {FEATURES.map(f => (
+            <div key={f.title} className="login-feature">
+              <span className="login-feature-icon">{f.icon}</span>
+              <div>
+                <strong>{f.title}</strong>
+                <span>{f.desc}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={handleGoogleLogin}
+          className={`google-btn ${signingIn ? 'google-btn--loading' : ''}`}
+          disabled={signingIn}
+        >
+          {signingIn ? (
+            <>
+              <span className="btn-spinner" />
+              Redirecting…
+            </>
+          ) : (
+            <>
+              <GoogleIcon />
+              Continue with Google
+            </>
+          )}
         </button>
         <p className="login-footer">
           Your emails are analysed securely. We never store passwords.

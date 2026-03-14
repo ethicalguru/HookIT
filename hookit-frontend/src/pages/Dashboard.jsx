@@ -17,23 +17,34 @@ import '../styles/dashboard.css'
 
 export default function Dashboard({ session }) {
   const [proxyAddress, setProxyAddress] = useState('')
-  const [emails, setEmails]     = useState([])
-  const [activeTab, setActiveTab] = useState('all')   // 'all' | 'quarantine'
+  const [proxyLoading, setProxyLoading] = useState(true)
+  const [proxyError, setProxyError]     = useState(false)
+  const [emails, setEmails]             = useState([])
+  const [emailsLoading, setEmailsLoading] = useState(true)
+  const [activeTab, setActiveTab]       = useState('all')   // 'all' | 'quarantine'
   const [selectedEmail, setSelectedEmail] = useState(null)
-  const [stats, setStats]       = useStats()
-  const [copied, setCopied]     = useState(false)
+  const [stats, setStats]               = useStats()
+  const [copied, setCopied]             = useState(false)
 
   const user = session.user
+  const quarantineCount = emails.filter(e => e.status === 'quarantined').length
 
   // ── Onboard: get or create proxy address ────
   useEffect(() => {
     async function onboard() {
-      const res = await fetch(`${API_URL}/api/onboard`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const data = await res.json()
-      if (data.proxy_address) setProxyAddress(data.proxy_address)
+      try {
+        const res = await fetch(`${API_URL}/api/onboard`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const data = await res.json()
+        if (data.proxy_address) setProxyAddress(data.proxy_address)
+        else setProxyError(true)
+      } catch {
+        setProxyError(true)
+      } finally {
+        setProxyLoading(false)
+      }
     }
     onboard()
   }, [session])
@@ -44,7 +55,10 @@ export default function Dashboard({ session }) {
       .from('emails')
       .select('*')
       .order('received_at', { ascending: false })
-      .then(({ data }) => setEmails(data || []))
+      .then(({ data }) => {
+        setEmails(data || [])
+        setEmailsLoading(false)
+      })
   }, [])
 
   // ── Realtime subscription ───────────────────
@@ -82,12 +96,13 @@ export default function Dashboard({ session }) {
   }
 
   return (
-    <div className="dashboard">
+    <div className="dashboard fade-in">
       {/* Header */}
       <header className="dash-header">
         <div className="dash-brand">
           <span className="logo">🪝</span>
           <h1>HookIT</h1>
+          <span className="dash-badge">Dashboard</span>
         </div>
         <div className="dash-user">
           <img
@@ -102,52 +117,77 @@ export default function Dashboard({ session }) {
 
       {/* Proxy address bar */}
       <div className="proxy-bar">
-        <span>Your proxy address:</span>
-        <code className="proxy-address">{proxyAddress || 'Loading...'}</code>
-        <button onClick={copyProxy} className="btn-copy">
-          {copied ? '✓ Copied' : 'Copy'}
-        </button>
+        <span className="proxy-label">📬 Your proxy address:</span>
+        {proxyLoading ? (
+          <span className="proxy-loading">
+            <span className="btn-spinner" /> Generating…
+          </span>
+        ) : proxyError ? (
+          <span className="proxy-error">Could not load proxy address — check backend</span>
+        ) : (
+          <>
+            <code className="proxy-address">{proxyAddress}</code>
+            <button onClick={copyProxy} className={`btn-copy ${copied ? 'btn-copy--success' : ''}`}>
+              {copied ? '✓ Copied!' : '📋 Copy'}
+            </button>
+          </>
+        )}
       </div>
 
       {/* KPI Cards */}
-      <KpiCards stats={stats} />
+      <section className="dash-section">
+        <h2 className="section-title">Overview</h2>
+        <KpiCards stats={stats} />
+      </section>
 
       {/* Charts row */}
-      <div className="charts-row">
-        <div className="chart-card">
-          <h3>Email Volume (30 days)</h3>
-          <EmailVolumeChart emails={emails} />
+      <section className="dash-section">
+        <h2 className="section-title">Analytics</h2>
+        <div className="charts-row">
+          <div className="chart-card">
+            <h3>📈 Email Volume (30 days)</h3>
+            <EmailVolumeChart emails={emails} />
+          </div>
+          <div className="chart-card">
+            <h3>🎯 Threat Breakdown</h3>
+            <VerdictPie emails={emails} />
+          </div>
         </div>
-        <div className="chart-card">
-          <h3>Threat Breakdown</h3>
-          <VerdictPie emails={emails} />
-        </div>
-      </div>
+      </section>
 
       {/* Brands chart */}
       <div className="chart-card full-width">
-        <h3>Top Impersonated Brands</h3>
+        <h3>🏢 Top Impersonated Brands</h3>
         <BrandsBarChart emails={emails} />
       </div>
 
       {/* Tab switcher */}
-      <div className="tab-bar">
-        <button
-          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveTab('all')}
-        >
-          All Emails
-        </button>
-        <button
-          className={`tab ${activeTab === 'quarantine' ? 'active' : ''}`}
-          onClick={() => setActiveTab('quarantine')}
-        >
-          Quarantine
-        </button>
-      </div>
+      <section className="dash-section">
+        <h2 className="section-title">Email Inbox</h2>
+        <div className="tab-bar">
+          <button
+            className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveTab('all')}
+          >
+            All Emails
+            {emails.length > 0 && <span className="tab-count">{emails.length}</span>}
+          </button>
+          <button
+            className={`tab ${activeTab === 'quarantine' ? 'active' : ''}`}
+            onClick={() => setActiveTab('quarantine')}
+          >
+            🔒 Quarantine
+            {quarantineCount > 0 && <span className="tab-count tab-count--warn">{quarantineCount}</span>}
+          </button>
+        </div>
+      </section>
 
       {/* Email list / Quarantine */}
-      {activeTab === 'all' ? (
+      {emailsLoading ? (
+        <div className="table-empty">
+          <span className="btn-spinner" /> Loading emails…
+        </div>
+      ) : activeTab === 'all' ? (
         <EmailTable emails={emails} onSelect={setSelectedEmail} />
       ) : (
         <QuarantineInbox

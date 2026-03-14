@@ -5,8 +5,28 @@
 
 import { useMemo } from 'react'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts'
+
+function CustomTooltip({ active, payload, label }) {
+  if (!active || !payload?.length) return null
+  return (
+    <div style={{
+      background: '#1a1d27',
+      border: '1px solid #2e3140',
+      borderRadius: 8,
+      padding: '10px 14px',
+      fontSize: 13,
+    }}>
+      <p style={{ color: '#8b8fa3', marginBottom: 4 }}>{label}</p>
+      {payload.map(p => (
+        <p key={p.name} style={{ color: p.color, margin: '2px 0' }}>
+          {p.name}: <strong>{p.value}</strong>
+        </p>
+      ))}
+    </div>
+  )
+}
 
 export function EmailVolumeChart({ emails }) {
   const data = useMemo(() => {
@@ -28,17 +48,24 @@ export function EmailVolumeChart({ emails }) {
   }, [emails])
 
   if (!data.length) {
-    return <p className="chart-empty">No email data yet</p>
+    return (
+      <div className="chart-empty">
+        <span className="chart-empty-icon">📈</span>
+        <p>No email data yet</p>
+        <p className="chart-empty-hint">Send a test email to your proxy address to see volume stats</p>
+      </div>
+    )
   }
 
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data}>
-        <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-        <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-        <Tooltip />
-        <Line dataKey="total"   stroke="#534AB7" strokeWidth={2} dot={false} name="Total" />
-        <Line dataKey="blocked" stroke="#A32D2D" strokeWidth={2} dot={false} name="Blocked" />
+        <CartesianGrid stroke="#2e3140" strokeDasharray="3 3" />
+        <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#8b8fa3' }} tickLine={false} axisLine={false} />
+        <YAxis tick={{ fontSize: 11, fill: '#8b8fa3' }} allowDecimals={false} tickLine={false} axisLine={false} />
+        <Tooltip content={<CustomTooltip />} />
+        <Line dataKey="total"   stroke="#7B73E0" strokeWidth={2.5} dot={false} name="Total" />
+        <Line dataKey="blocked" stroke="#E05555" strokeWidth={2.5} dot={false} name="Blocked" />
       </LineChart>
     </ResponsiveContainer>
   )

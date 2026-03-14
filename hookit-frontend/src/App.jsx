@@ -30,11 +30,19 @@ export default function App() {
   if (loading) {
     return (
       <div className="loading-screen">
+        <div className="loading-brand">
+          <span className="loading-logo">🪝</span>
+          <h2 className="loading-title">HookIT</h2>
+        </div>
         <div className="spinner" />
-        <p>Loading HookIT...</p>
+        <p>Securing your inbox…</p>
       </div>
     )
   }
 
-  return session ? <Dashboard session={session} /> : <Login />
+  return (
+    <div className="fade-in">
+      {session ? <Dashboard session={session} /> : <Login />}
+    </div>
+  )
 }
