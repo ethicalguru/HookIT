@@ -1,69 +1,141 @@
-// ═══════════════════════════════════════════════
-// Email Detail Modal — full score breakdown + Claude reasons
-// ═══════════════════════════════════════════════
-
+// EmailDetailModal.jsx
+import React, { useEffect } from 'react'
+import { ScoreBar } from './ScoreBar'
 import { VerdictBadge } from './VerdictBadge'
-import { ScoreBar }     from './ScoreBar'
+
+function readAnalysis(email) {
+  const analysis = email?.analysis || {}
+
+  return {
+    urlScore: analysis.urlScore ?? analysis.url_score ?? 0,
+    headerScore: analysis.headerScore ?? analysis.header_score ?? 0,
+    aiScore: analysis.aiScore ?? analysis.ai_score ?? 0,
+    finalScore: analysis.finalScore ?? analysis.final_score ?? email?.score ?? 0,
+    spf: analysis.spf ?? 'unknown',
+    dkim: analysis.dkim ?? 'unknown',
+    maliciousUrls: analysis.maliciousUrls ?? analysis.malicious_urls ?? [],
+    reasons: analysis.reasons ?? [],
+    impersonationTarget: analysis.impersonationTarget ?? analysis.impersonation_target ?? email?.brand,
+    urgent: Boolean(analysis.urgent),
+  }
+}
 
 export function EmailDetailModal({ email, onClose }) {
+  const details = readAnalysis(email)
+
+  useEffect(() => {
+    function onKeyDown(event) {
+      if (event.key === 'Escape') {
+        onClose?.()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onClose])
+
+  if (!email) return null
+
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
-        {/* Header */}
+      <div
+        className="email-modal"
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
         <div className="modal-header">
-          <VerdictBadge verdict={email.verdict} />
-          <span className="modal-score">Risk score: {email.final_score}/100</span>
-          <button onClick={onClose} className="modal-close">✕</button>
+          <div>
+            <h2 className="modal-title">Email Analysis</h2>
+            <p className="modal-subtitle">Full verdict breakdown and AI reasoning</p>
+          </div>
+          <button type="button" className="modal-close" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
-        {/* Body */}
         <div className="modal-body">
-          <p><b>From:</b> {email.sender}</p>
-          <p><b>Subject:</b> {email.subject}</p>
-          <p><b>Received:</b> {new Date(email.received_at).toLocaleString()}</p>
+          <div className="modal-meta-grid">
+            <div className="meta-card">
+              <span className="meta-label">From</span>
+              <span className="meta-value">{email.from_address || 'Unknown sender'}</span>
+            </div>
+            <div className="meta-card">
+              <span className="meta-label">Subject</span>
+              <span className="meta-value">{email.subject || '(No subject)'}</span>
+            </div>
+            <div className="meta-card">
+              <span className="meta-label">Received</span>
+              <span className="meta-value">
+                {email.received_at ? new Date(email.received_at).toLocaleString() : '—'}
+              </span>
+            </div>
+            <div className="meta-card">
+              <span className="meta-label">Verdict</span>
+              <span className="meta-value">
+                <VerdictBadge verdict={email.verdict} />
+              </span>
+            </div>
+          </div>
 
-          <hr />
+          <div className="modal-section">
+            <h3 className="modal-section-title">Score Breakdown</h3>
+            <ScoreBar label="URL Risk" value={details.urlScore} />
+            <ScoreBar label="Header Risk" value={details.headerScore} />
+            <ScoreBar label="AI Risk" value={details.aiScore} />
+            <ScoreBar label="Final (weighted)" value={details.finalScore} bold />
+          </div>
 
-          <h4>Score Breakdown</h4>
-          <ScoreBar label="URL check"       score={email.url_score} />
-          <ScoreBar label="Header auth"     score={email.header_score} />
-          <ScoreBar label="AI analysis"     score={email.ai_score} />
-          <ScoreBar label="Final (weighted)" score={email.final_score} bold />
+          <div className="modal-section">
+            <h3 className="modal-section-title">Authentication</h3>
+            <div className="auth-grid">
+              <span className={`auth-pill ${String(details.spf).toLowerCase() === 'pass' ? 'pass' : 'fail'}`}>
+                SPF: {details.spf}
+              </span>
+              <span className={`auth-pill ${String(details.dkim).toLowerCase() === 'pass' ? 'pass' : 'fail'}`}>
+                DKIM: {details.dkim}
+              </span>
+            </div>
+          </div>
 
-          <hr />
+          {!!details.impersonationTarget && (
+            <div className="modal-section">
+              <h3 className="modal-section-title">Impersonation Target</h3>
+              <span className="brand-chip">{details.impersonationTarget}</span>
+            </div>
+          )}
 
-          <h4>Authentication Results</h4>
-          <p>SPF:  {email.spf_pass  ? '✅ PASS' : '❌ FAIL'}</p>
-          <p>DKIM: {email.dkim_pass ? '✅ PASS' : '❌ FAIL'}</p>
+          {details.urgent && (
+            <div className="modal-section">
+              <div className="urgency-banner">Urgency language detected in this email</div>
+            </div>
+          )}
 
-          {email.malicious_urls?.length > 0 && (
-            <>
-              <hr />
-              <h4>Malicious URLs</h4>
-              <ul>
-                {email.malicious_urls.map((url, i) => (
-                  <li key={i} className="malicious-url">{url}</li>
+          <div className="modal-section">
+            <h3 className="modal-section-title">Malicious URLs</h3>
+            {details.maliciousUrls.length === 0 ? (
+              <p className="modal-empty">No flagged URLs</p>
+            ) : (
+              <ul className="modal-list">
+                {details.maliciousUrls.map((url, index) => (
+                  <li key={`${url}-${index}`}>{url}</li>
                 ))}
               </ul>
-            </>
-          )}
+            )}
+          </div>
 
-          <hr />
-
-          <h4>AI Analysis Reasons</h4>
-          <ul>
-            {(email.reasons || []).map((r, i) => <li key={i}>{r}</li>)}
-          </ul>
-
-          {email.impersonation_target && (
-            <p className="impersonation">
-              <b>Impersonating:</b> {email.impersonation_target}
-            </p>
-          )}
-
-          {email.urgency_flag && (
-            <p className="urgency-flag">⚠️ Urgency language detected</p>
-          )}
+          <div className="modal-section">
+            <h3 className="modal-section-title">Claude AI Reasons</h3>
+            {details.reasons.length === 0 ? (
+              <p className="modal-empty">No AI reasoning available</p>
+            ) : (
+              <ul className="modal-list">
+                {details.reasons.map((reason, index) => (
+                  <li key={`${reason}-${index}`}>{reason}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
     </div>

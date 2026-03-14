@@ -1,23 +1,28 @@
-// ═══════════════════════════════════════════════
-// ScoreBar — horizontal bar used in EmailDetailModal
-// ═══════════════════════════════════════════════
+// ScoreBar.jsx
+import React from 'react'
 
-export function ScoreBar({ label, score, bold }) {
-  const pct = Math.min(Math.max(score || 0, 0), 100)
-  const color = pct >= 70 ? '#A32D2D'
-              : pct >= 45 ? '#854F0B'
-              : '#3B6D11'
+function getScoreTone(score = 0) {
+  if (score <= 44) return 'safe'
+  if (score <= 70) return 'warning'
+  return 'danger'
+}
+
+export function ScoreBar({ label, value = 0, bold = false }) {
+  const safeValue = Math.max(0, Math.min(100, Number(value) || 0))
+  const tone = getScoreTone(safeValue)
 
   return (
-    <div className={`score-bar ${bold ? 'score-bar-bold' : ''}`}>
-      <span className="score-bar-label">{label}</span>
-      <div className="score-bar-track">
+    <div className={`scorebar-row ${bold ? 'is-bold' : ''}`}>
+      <div className="scorebar-header">
+        <span className="scorebar-label">{label}</span>
+        <span className={`scorebar-value ${tone}`}>{safeValue}</span>
+      </div>
+      <div className="scorebar-track">
         <div
-          className="score-bar-fill"
-          style={{ width: `${pct}%`, backgroundColor: color }}
+          className={`scorebar-fill ${tone}`}
+          style={{ width: `${safeValue}%` }}
         />
       </div>
-      <span className="score-bar-value">{score ?? '—'}</span>
     </div>
   )
 }

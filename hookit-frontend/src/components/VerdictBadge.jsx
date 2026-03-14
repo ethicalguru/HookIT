@@ -1,21 +1,21 @@
-// ═══════════════════════════════════════════════
-// VerdictBadge — coloured pill badge
-// ═══════════════════════════════════════════════
+// VerdictBadge.jsx
+import React from 'react'
 
-const BADGE = {
-  safe:        { label: '✓ Safe',        className: 'badge-safe' },
-  suspicious:  { label: '⚠ Suspicious',  className: 'badge-suspicious' },
-  phishing:    { label: '⛔ Phishing',    className: 'badge-phishing' },
-  quarantined: { label: '🔒 Quarantined', className: 'badge-quarantined' },
-  released:    { label: '↗ Released',     className: 'badge-released' },
-  deleted:     { label: '🗑 Deleted',     className: 'badge-deleted' },
+function getVerdictMeta(verdict = '') {
+  const value = String(verdict).toLowerCase()
+
+  if (value === 'safe') {
+    return { label: 'Safe', className: 'verdict-badge safe' }
+  }
+
+  if (value === 'suspicious') {
+    return { label: 'Suspicious', className: 'verdict-badge suspicious' }
+  }
+
+  return { label: 'Phishing', className: 'verdict-badge phishing' }
 }
 
 export function VerdictBadge({ verdict }) {
-  const config = BADGE[verdict] || { label: verdict || '—', className: '' }
-  return (
-    <span className={`verdict-badge ${config.className}`}>
-      {config.label}
-    </span>
-  )
+  const meta = getVerdictMeta(verdict)
+  return <span className={meta.className}>{meta.label}</span>
 }
