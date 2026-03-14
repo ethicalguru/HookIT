@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { supabase, API_URL } from '../supabaseClient'
 import { useStats } from '../hooks/useStats'
 import KpiCards from '../components/KpiCards'
@@ -65,7 +65,7 @@ export default function Dashboard({ session }) {
       setOnboardError('')
 
       try {
-        const response = await fetch('/api/onboard', {
+        const response = await fetch(`${API_URL}/api/onboard`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -232,9 +232,9 @@ export default function Dashboard({ session }) {
 
         <div className="table-shell">
           {activeTab === 'emails' ? (
-            <EmailTable onSelect={setSelectedEmail} />
+            <EmailTable emails={stats.data?.emails || []} onSelect={setSelectedEmail} />
           ) : (
-            <QuarantineInbox onSelect={setSelectedEmail} />
+            <QuarantineInbox session={session} onSelect={setSelectedEmail} />
           )}
         </div>
 
