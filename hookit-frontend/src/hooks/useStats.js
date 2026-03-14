@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import { supabase, API_URL } from '../supabaseClient'
 
 export function useStats(session) {
   const [data, setData] = useState(null)
@@ -17,7 +17,7 @@ export function useStats(session) {
     try {
       setError('')
 
-      const response = await fetch('/api/stats', {
+      const response = await fetch(`${API_URL}/api/stats`, {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },

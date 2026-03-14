@@ -21,7 +21,7 @@ onboardRoutes.post('/', async (req, res) => {
       .single()
 
     if (existing?.proxy_address) {
-      return res.json({ proxy_address: existing.proxy_address })
+      return res.json({ proxyAddress: existing.proxy_address })
     }
 
     // Generate unique slug: first name + 4 random chars
@@ -41,7 +41,7 @@ onboardRoutes.post('/', async (req, res) => {
     }
 
     console.log(`[onboard] New user: ${email} → ${proxy}`)
-    res.json({ proxy_address: proxy })
+    res.json({ proxyAddress: proxy })
   } catch (err) {
     console.error('[onboard] Error:', err)
     res.status(500).json({ error: 'Internal server error' })
