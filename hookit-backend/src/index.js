@@ -15,17 +15,19 @@ import { onboardRoutes }     from './api/onboard.js'
 import { quarantineRoutes }  from './api/quarantine.js'
 import { statsRoutes }       from './api/stats.js'
 
-// ── Env validation (fail fast — don't boot with missing keys) ─────────────
-const REQUIRED_ENV = [
-  'MG_KEY', 'MG_DOMAIN', 'PROXY_DOMAIN',
-  'CLAUDE_KEY',
-  'SUPABASE_URL', 'SUPABASE_KEY', 'SUPABASE_JWT_SECRET',
-  'GOOGLE_SB_KEY',
-]
-const missing = REQUIRED_ENV.filter((k) => !process.env[k])
-if (missing.length) {
-  console.error('❌ Missing env vars:', missing.join(', '))
+// ── Env validation ─────────────────────────────────────────────────────────
+const CRITICAL_ENV = ['SUPABASE_URL', 'SUPABASE_KEY', 'SUPABASE_JWT_SECRET']
+const OPTIONAL_ENV = ['MG_KEY', 'MG_DOMAIN', 'PROXY_DOMAIN', 'CLAUDE_KEY', 'GOOGLE_SB_KEY']
+
+const missingCritical = CRITICAL_ENV.filter((k) => !process.env[k])
+if (missingCritical.length) {
+  console.error('❌ Missing CRITICAL env vars:', missingCritical.join(', '))
   process.exit(1)
+}
+
+const missingOptional = OPTIONAL_ENV.filter((k) => !process.env[k])
+if (missingOptional.length) {
+  console.warn('⚠️  Missing optional env vars (some features disabled):', missingOptional.join(', '))
 }
 
 const app    = express()
