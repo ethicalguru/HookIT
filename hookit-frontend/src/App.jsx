@@ -1,40 +1,53 @@
-// ═══════════════════════════════════════════════
-// App.jsx — Auth Gate
-// Shows Login if no session, Dashboard if authenticated
-// ═══════════════════════════════════════════════
-
 import { useEffect, useState } from 'react'
 import { supabase } from './supabaseClient'
-import Login     from './pages/Login'
+import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 
-export default function App() {
-  const [session, setSession]   = useState(null)
-  const [loading, setLoading]   = useState(true)
+function App() {
+  const [session, setSession] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
+    let mounted = true
+
+    const loadSession = async () => {
+      const { data, error } = await supabase.auth.getSession()
+
+      if (!mounted) return
+
+      if (error) {
+        console.error('Failed to get session:', error)
+      }
+
+      setSession(data?.session ?? null)
+      setLoading(false)
+    }
+
+    loadSession()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession ?? null)
       setLoading(false)
     })
 
-    // Listen for auth changes (login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => setSession(session)
-    )
-
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   if (loading) {
     return (
-      <div className="loading-screen">
+      <div className="app-loader-screen">
         <div className="spinner" />
-        <p>Loading HookIT...</p>
+        <p className="app-loader-text">Checking your session…</p>
       </div>
     )
   }
 
   return session ? <Dashboard session={session} /> : <Login />
 }
+
+export default App

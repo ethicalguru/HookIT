@@ -1,171 +1,250 @@
-// ═══════════════════════════════════════════════
-// Dashboard Page — Main layout with all panels
-// KPIs, Charts, Email table, Quarantine, Realtime
-// ═══════════════════════════════════════════════
-
 import { useEffect, useState } from 'react'
-import { supabase, API_URL }  from '../supabaseClient'
-import { useStats }            from '../hooks/useStats'
-import { KpiCards }            from '../components/KpiCards'
-import { EmailVolumeChart }    from '../components/EmailVolumeChart'
-import { VerdictPie }          from '../components/VerdictPie'
-import { BrandsBarChart }      from '../components/BrandsBarChart'
-import { EmailTable }          from '../components/EmailTable'
-import { QuarantineInbox }     from '../components/QuarantineInbox'
-import { EmailDetailModal }    from '../components/EmailDetailModal'
+import { supabase, API_URL } from '../supabaseClient'
+import { useStats } from '../hooks/useStats'
+import KpiCards from '../components/KpiCards'
+import EmailVolumeChart from '../components/EmailVolumeChart'
+import VerdictPie from '../components/VerdictPie'
+import BrandsBarChart from '../components/BrandsBarChart'
+import { EmailTable } from '../components/EmailTable'
+import { QuarantineInbox } from '../components/QuarantineInbox'
+import { EmailDetailModal } from '../components/EmailDetailModal'
 import '../styles/dashboard.css'
+
+function ShieldLogo() {
+  return (
+    <div className="brand-block">
+      <div className="brand-mark">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path
+            d="M12 2L20 5V11C20 16.25 16.72 20.94 12 22C7.28 20.94 4 16.25 4 11V5L12 2Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 12L10.7 14.7L16.5 8.9"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      <span className="logo-text">HookIT</span>
+    </div>
+  )
+}
 
 export default function Dashboard({ session }) {
   const [proxyAddress, setProxyAddress] = useState('')
-  const [emails, setEmails]     = useState([])
-  const [activeTab, setActiveTab] = useState('all')   // 'all' | 'quarantine'
+  const [activeTab, setActiveTab] = useState('emails')
+  const [copied, setCopied] = useState(false)
   const [selectedEmail, setSelectedEmail] = useState(null)
-  const [stats, setStats]       = useStats()
-  const [copied, setCopied]     = useState(false)
+  const [onboardLoading, setOnboardLoading] = useState(true)
+  const [onboardError, setOnboardError] = useState('')
 
-  const user = session.user
+  const stats = useStats(session)
 
-  // ── Onboard: get or create proxy address ────
-  useEffect(() => {
-    async function onboard() {
-      const res = await fetch(`${API_URL}/api/onboard`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const data = await res.json()
-      if (data.proxy_address) setProxyAddress(data.proxy_address)
-    }
-    onboard()
+  const userName = useMemo(() => {
+    return (
+      session?.user?.user_metadata?.full_name ||
+      session?.user?.email ||
+      'HookIT User'
+    )
   }, [session])
 
-  // ── Load all emails ─────────────────────────
-  useEffect(() => {
-    supabase
-      .from('emails')
-      .select('*')
-      .order('received_at', { ascending: false })
-      .then(({ data }) => setEmails(data || []))
-  }, [])
+  const avatarUrl = session?.user?.user_metadata?.avatar_url || ''
 
-  // ── Realtime subscription ───────────────────
+  useEffect(() => {
+    let ignore = false
+
+    const onboardUser = async () => {
+      setOnboardLoading(true)
+      setOnboardError('')
+
+      try {
+        const response = await fetch('/api/onboard', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error(`Onboard failed with status ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        if (!ignore) {
+          setProxyAddress(data?.proxyAddress ?? '')
+        }
+      } catch (error) {
+        console.error('Onboard error:', error)
+        if (!ignore) {
+          setOnboardError('Could not connect your proxy address.')
+        }
+      } finally {
+        if (!ignore) {
+          setOnboardLoading(false)
+        }
+      }
+    }
+
+    onboardUser()
+
+    return () => {
+      ignore = true
+    }
+  }, [session.access_token])
+
   useEffect(() => {
     const channel = supabase
-      .channel('my-email-feed')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'emails',
-        filter: `user_id=eq.${user.id}`,
-      }, (payload) => {
-        setEmails(prev => [payload.new, ...prev].slice(0, 200))
-        setStats(prev => prev ? {
-          ...prev,
-          total: prev.total + 1,
-          blocked: payload.new.verdict !== 'safe' ? prev.blocked + 1 : prev.blocked,
-        } : prev)
-      })
+      .channel(`emails-${session.user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'emails',
+          filter: `user_id=eq.${session.user.id}`,
+        },
+        () => {
+          stats.refetch()
+        }
+      )
       .subscribe()
 
-    return () => supabase.removeChannel(channel)
-  }, [user.id])
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [session.user.id, stats])
 
-  // ── Copy proxy address ──────────────────────
-  const copyProxy = () => {
-    navigator.clipboard.writeText(proxyAddress)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  useEffect(() => {
+    if (!copied) return
+
+    const timer = window.setTimeout(() => {
+      setCopied(false)
+    }, 2000)
+
+    return () => window.clearTimeout(timer)
+  }, [copied])
+
+  const handleCopy = async () => {
+    if (!proxyAddress) return
+
+    try {
+      await navigator.clipboard.writeText(proxyAddress)
+      setCopied(true)
+    } catch (error) {
+      console.error('Clipboard error:', error)
+    }
   }
 
-  // ── Sign out ────────────────────────────────
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Sign out failed:', error)
+    }
   }
 
   return (
-    <div className="dashboard">
-      {/* Header */}
+    <div className="dashboard-root">
       <header className="dash-header">
-        <div className="dash-brand">
-          <span className="logo">🪝</span>
-          <h1>HookIT</h1>
+        <div className="dash-header-left">
+          <ShieldLogo />
         </div>
-        <div className="dash-user">
-          <img
-            src={user.user_metadata?.avatar_url}
-            alt=""
-            className="avatar"
-          />
-          <span className="user-name">{user.user_metadata?.full_name || user.email}</span>
-          <button onClick={handleSignOut} className="btn-signout">Sign out</button>
+
+        <div className="proxy-bar" aria-label="Proxy address">
+          <span className="proxy-label">Proxy Inbox</span>
+          <div className="proxy-address">
+            {onboardLoading ? 'Connecting…' : proxyAddress || 'Unavailable'}
+          </div>
+          <button
+            className={`btn-copy ${copied ? 'is-copied' : ''}`}
+            type="button"
+            onClick={handleCopy}
+            disabled={!proxyAddress}
+          >
+            {copied ? 'Copied ✓' : 'Copy'}
+          </button>
+        </div>
+
+        <div className="user-info">
+          {avatarUrl ? (
+            <img className="avatar" src={avatarUrl} alt={userName} />
+          ) : (
+            <div className="avatar avatar-fallback" aria-hidden="true">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div className="user-meta">
+            <span className="user-name">{userName}</span>
+            <span className="user-email">{session?.user?.email}</span>
+          </div>
+          <button className="btn-signout" type="button" onClick={handleSignOut}>
+            Sign Out
+          </button>
         </div>
       </header>
 
-      {/* Proxy address bar */}
-      <div className="proxy-bar">
-        <span>Your proxy address:</span>
-        <code className="proxy-address">{proxyAddress || 'Loading...'}</code>
-        <button onClick={copyProxy} className="btn-copy">
-          {copied ? '✓ Copied' : 'Copy'}
-        </button>
-      </div>
+      <main className="dash-main">
+        {(stats.error || onboardError) && (
+          <div className="error-banner">
+            <span>
+              {stats.error ? 'Could not load stats. Retry?' : onboardError}
+            </span>
+            {stats.error && (
+              <button className="error-retry" type="button" onClick={stats.refetch}>
+                Retry
+              </button>
+            )}
+          </div>
+        )}
 
-      {/* KPI Cards */}
-      <KpiCards stats={stats} />
+        <KpiCards stats={stats.loading ? null : stats.data} />
 
-      {/* Charts row */}
-      <div className="charts-row">
-        <div className="chart-card">
-          <h3>Email Volume (30 days)</h3>
-          <EmailVolumeChart emails={emails} />
+        <div className="charts-grid">
+          <EmailVolumeChart data={stats.loading ? null : stats.data?.volumeByDay} />
+          <VerdictPie data={stats.loading ? null : stats.data} />
+          <BrandsBarChart data={stats.loading ? null : stats.data?.topBrands} />
         </div>
-        <div className="chart-card">
-          <h3>Threat Breakdown</h3>
-          <VerdictPie emails={emails} />
+
+        <div className="tab-bar">
+          <button
+            className={activeTab === 'emails' ? 'tab active' : 'tab'}
+            onClick={() => setActiveTab('emails')}
+            type="button"
+          >
+            All Emails
+          </button>
+          <button
+            className={activeTab === 'quarantine' ? 'tab active' : 'tab'}
+            onClick={() => setActiveTab('quarantine')}
+            type="button"
+          >
+            🔒 Quarantine
+          </button>
         </div>
-      </div>
 
-      {/* Brands chart */}
-      <div className="chart-card full-width">
-        <h3>Top Impersonated Brands</h3>
-        <BrandsBarChart emails={emails} />
-      </div>
-
-      {/* Tab switcher */}
-      <div className="tab-bar">
-        <button
-          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveTab('all')}
-        >
-          All Emails
-        </button>
-        <button
-          className={`tab ${activeTab === 'quarantine' ? 'active' : ''}`}
-          onClick={() => setActiveTab('quarantine')}
-        >
-          Quarantine
-        </button>
-      </div>
-
-      {/* Email list / Quarantine */}
-      {activeTab === 'all' ? (
-        <EmailTable emails={emails} onSelect={setSelectedEmail} />
-      ) : (
-        <QuarantineInbox
-          session={session}
-          onSelect={setSelectedEmail}
-          onUpdate={(updatedEmails) => setEmails(prev =>
-            prev.map(e => updatedEmails.find(u => u.id === e.id) || e)
+        <div className="table-shell">
+          {activeTab === 'emails' ? (
+            <EmailTable onSelect={setSelectedEmail} />
+          ) : (
+            <QuarantineInbox onSelect={setSelectedEmail} />
           )}
-        />
-      )}
+        </div>
 
-      {/* Detail modal */}
-      {selectedEmail && (
-        <EmailDetailModal
-          email={selectedEmail}
-          onClose={() => setSelectedEmail(null)}
-        />
-      )}
+        {selectedEmail && (
+          <EmailDetailModal
+            email={selectedEmail}
+            onClose={() => setSelectedEmail(null)}
+          />
+        )}
+      </main>
     </div>
   )
 }

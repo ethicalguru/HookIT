@@ -1,45 +1,56 @@
-// ═══════════════════════════════════════════════
-// Email Volume Chart — Recharts LineChart
-// Shows emails per day (total + blocked) over 30 days
-// ═══════════════════════════════════════════════
-
-import { useMemo } from 'react'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts'
 
-export function EmailVolumeChart({ emails }) {
-  const data = useMemo(() => {
-    const since = Date.now() - 30 * 24 * 60 * 60 * 1000
-    const recent = (emails || []).filter(
-      e => new Date(e.received_at).getTime() >= since
-    )
-
-    const grouped = {}
-    recent.forEach(e => {
-      const day = e.received_at?.slice(0, 10) // 'YYYY-MM-DD'
-      if (!day) return
-      if (!grouped[day]) grouped[day] = { day, total: 0, blocked: 0 }
-      grouped[day].total++
-      if (e.verdict !== 'safe') grouped[day].blocked++
-    })
-
-    return Object.values(grouped).sort((a, b) => a.day.localeCompare(b.day))
-  }, [emails])
-
-  if (!data.length) {
-    return <p className="chart-empty">No email data yet</p>
-  }
+export default function EmailVolumeChart({ data }) {
+  const hasData = Array.isArray(data) && data.length > 0
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
-      <LineChart data={data}>
-        <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-        <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-        <Tooltip />
-        <Line dataKey="total"   stroke="#534AB7" strokeWidth={2} dot={false} name="Total" />
-        <Line dataKey="blocked" stroke="#A32D2D" strokeWidth={2} dot={false} name="Blocked" />
-      </LineChart>
-    </ResponsiveContainer>
+    <section className="chart-card">
+      <h3 className="chart-title">Email Volume — Last 30 Days</h3>
+
+      {!hasData ? (
+        <div className="chart-empty">No data yet 📭</div>
+      ) : (
+        <div className="chart-wrap">
+          <ResponsiveContainer width="100%" height={240}>
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: '#94a3b8', fontSize: 11 }}
+                tickFormatter={(d) => d.slice(5)}
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fill: '#94a3b8', fontSize: 11 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: '#1e293b',
+                  border: 'none',
+                  borderRadius: '10px',
+                  color: '#f1f5f9',
+                }}
+                labelStyle={{ color: '#94a3b8' }}
+              />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="#60a5fa"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </section>
   )
 }

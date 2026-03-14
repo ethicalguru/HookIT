@@ -1,34 +1,87 @@
-// ═══════════════════════════════════════════════
-// useStats Hook — Aggregated KPIs for current user
-// Fetches from Supabase (RLS auto-filters by user)
-// ═══════════════════════════════════════════════
-
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 
-export function useStats() {
-  const [stats, setStats] = useState(null)
+export function useStats(session) {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const refetch = useCallback(async () => {
+    if (!session?.access_token) {
+      setData(null)
+      setLoading(false)
+      setError('')
+      return
+    }
+
+    try {
+      setError('')
+
+      const response = await fetch('/api/stats', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`Stats request failed with status ${response.status}`)
+      }
+
+      const result = await response.json()
+      setData(result ?? null)
+    } catch (err) {
+      console.error('Stats fetch error:', err)
+      setData(null)
+      setError('Could not load stats. Retry?')
+    } finally {
+      setLoading(false)
+    }
+  }, [session])
 
   useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from('emails')
-        .select('verdict, final_score, status')
+    let active = true
 
-      if (!data) return
-
-      const total    = data.length
-      const blocked  = data.filter(e => e.verdict !== 'safe').length
-      const passed   = total - blocked
-      const avgScore = total
-        ? Math.round(data.reduce((s, e) => s + (e.final_score || 0), 0) / total)
-        : 0
-      const passRate = total ? Math.round((passed / total) * 100) : 0
-
-      setStats({ total, blocked, passed, avgScore, passRate })
+    const firstLoad = async () => {
+      setLoading(true)
+      await refetch()
+      if (!active) return
     }
-    load()
-  }, [])
 
-  return [stats, setStats]
+    firstLoad()
+
+    return () => {
+      active = false
+    }
+  }, [refetch])
+
+  useEffect(() => {
+    if (!session?.user?.id) return undefined
+
+    const channel = supabase
+      .channel(`stats-feed-${session.user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'emails',
+          filter: `user_id=eq.${session.user.id}`,
+        },
+        () => {
+          refetch()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [session?.user?.id, refetch])
+
+  return {
+    data,
+    loading,
+    error,
+    refetch,
+  }
 }

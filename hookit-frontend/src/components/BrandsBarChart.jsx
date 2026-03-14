@@ -1,40 +1,49 @@
-// ═══════════════════════════════════════════════
-// Top Impersonated Brands — BarChart
-// ═══════════════════════════════════════════════
-
-import { useMemo } from 'react'
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts'
 
-export function BrandsBarChart({ emails }) {
-  const data = useMemo(() => {
-    const counts = {}
-    ;(emails || []).forEach(e => {
-      if (e.impersonation_target && e.impersonation_target !== 'null') {
-        const brand = e.impersonation_target
-        counts[brand] = (counts[brand] || 0) + 1
-      }
-    })
-
-    return Object.entries(counts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 8)
-  }, [emails])
-
-  if (!data.length) {
-    return <p className="chart-empty">No impersonation data yet</p>
-  }
+export default function BrandsBarChart({ data }) {
+  const chartData = Array.isArray(data) ? data.slice(0, 8) : []
+  const hasData = chartData.length > 0
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={data}>
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-        <Tooltip />
-        <Bar dataKey="count" fill="#534AB7" radius={[4, 4, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
+    <section className="chart-card">
+      <h3 className="chart-title">Top Impersonated Brands</h3>
+
+      {!hasData ? (
+        <div className="chart-empty">No brand data yet</div>
+      ) : (
+        <div className="chart-wrap">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={chartData} layout="vertical" margin={{ left: 8 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} />
+              <YAxis
+                type="category"
+                dataKey="brand"
+                width={90}
+                tick={{ fill: '#94a3b8', fontSize: 11 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: '#1e293b',
+                  border: 'none',
+                  borderRadius: '10px',
+                  color: '#f1f5f9',
+                }}
+                labelStyle={{ color: '#94a3b8' }}
+              />
+              <Bar dataKey="count" fill="#f87171" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </section>
   )
 }

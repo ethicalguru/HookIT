@@ -5,12 +5,20 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL
+// Environment variables (loaded by Vite)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// Safety check so app doesn't silently fail
 if (!supabaseUrl || !supabaseAnon) {
-  console.error('❌ Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY')
+  console.error(
+    '❌ Missing Supabase environment variables.\n' +
+    'Make sure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your .env file.'
+  )
 }
 
+// Create Supabase client (singleton)
 export const supabase = createClient(supabaseUrl, supabaseAnon)
-export const API_URL  = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+// Backend API base URL (Express server)
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
