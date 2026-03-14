@@ -1,12 +1,8 @@
-// ═══════════════════════════════════════════════
-// ScoreBar — horizontal bar used in EmailDetailModal
-// ═══════════════════════════════════════════════
-
 export function ScoreBar({ label, score, bold }) {
   const pct = Math.min(Math.max(score || 0, 0), 100)
-  const color = pct >= 70 ? '#A32D2D'
-              : pct >= 45 ? '#854F0B'
-              : '#3B6D11'
+  const color = pct >= 70 ? 'var(--accent-red)'
+              : pct >= 45 ? 'var(--accent-amber)'
+              : 'var(--accent-green)'
 
   return (
     <div className={`score-bar ${bold ? 'score-bar-bold' : ''}`}>

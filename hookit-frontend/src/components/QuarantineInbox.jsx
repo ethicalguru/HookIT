@@ -1,13 +1,9 @@
-// ═══════════════════════════════════════════════
-// Quarantine Inbox — list + release/delete actions
-// ═══════════════════════════════════════════════
-
 import { useState, useEffect } from 'react'
 import { supabase, API_URL } from '../supabaseClient'
-import { VerdictBadge }      from './VerdictBadge'
+import { VerdictBadge } from './VerdictBadge'
 
 export function QuarantineInbox({ session, onSelect, onUpdate }) {
-  const [emails, setEmails]   = useState([])
+  const [emails, setEmails] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,15 +36,26 @@ export function QuarantineInbox({ session, onSelect, onUpdate }) {
     setEmails(prev => prev.filter(e => e.id !== id))
   }
 
-  if (loading) return <p>Loading quarantine...</p>
+  if (loading) {
+    return (
+      <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-dim)' }}>
+        <div className="spinner" style={{ width: 28, height: 28, margin: '0 auto 12px' }} />
+        Loading quarantine…
+      </div>
+    )
+  }
 
   if (!emails.length) {
-    return <p className="table-empty">No quarantined emails — all clear! 🎉</p>
+    return (
+      <p className="table-empty">
+        No quarantined emails — all clear! 🎉
+      </p>
+    )
   }
 
   return (
     <div className="quarantine">
-      {emails.map(email => (
+      {emails.map((email) => (
         <div key={email.id} className="q-row">
           <VerdictBadge verdict={email.verdict} />
           <span className="q-score">{email.final_score}</span>

@@ -1,22 +1,18 @@
-// ═══════════════════════════════════════════════
-// Email Detail Modal — full score breakdown + Claude reasons
-// ═══════════════════════════════════════════════
-
 import { VerdictBadge } from './VerdictBadge'
-import { ScoreBar }     from './ScoreBar'
+import { ScoreBar } from './ScoreBar'
 
 export function EmailDetailModal({ email, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
-        {/* Header */}
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <VerdictBadge verdict={email.verdict} />
-          <span className="modal-score">Risk score: {email.final_score}/100</span>
-          <button onClick={onClose} className="modal-close">✕</button>
+          <span className="modal-score">
+            Risk score: <strong style={{ color: 'var(--text-primary)' }}>{email.final_score}</strong>/100
+          </span>
+          <button onClick={onClose} className="modal-close" aria-label="Close">✕</button>
         </div>
 
-        {/* Body */}
         <div className="modal-body">
           <p><b>From:</b> {email.sender}</p>
           <p><b>Subject:</b> {email.subject}</p>
@@ -25,21 +21,33 @@ export function EmailDetailModal({ email, onClose }) {
           <hr />
 
           <h4>Score Breakdown</h4>
-          <ScoreBar label="URL check"       score={email.url_score} />
-          <ScoreBar label="Header auth"     score={email.header_score} />
-          <ScoreBar label="AI analysis"     score={email.ai_score} />
+          <ScoreBar label="URL check"        score={email.url_score} />
+          <ScoreBar label="Header auth"      score={email.header_score} />
+          <ScoreBar label="AI analysis"      score={email.ai_score} />
           <ScoreBar label="Final (weighted)" score={email.final_score} bold />
 
           <hr />
 
           <h4>Authentication Results</h4>
-          <p>SPF:  {email.spf_pass  ? '✅ PASS' : '❌ FAIL'}</p>
-          <p>DKIM: {email.dkim_pass ? '✅ PASS' : '❌ FAIL'}</p>
+          <div style={{ display: 'flex', gap: 20, marginBottom: 8 }}>
+            <span style={{
+              color: email.spf_pass ? 'var(--accent-green)' : 'var(--accent-red)',
+              fontFamily: 'var(--font-mono)', fontSize: '0.88rem', fontWeight: 600,
+            }}>
+              SPF: {email.spf_pass ? '✓ PASS' : '✗ FAIL'}
+            </span>
+            <span style={{
+              color: email.dkim_pass ? 'var(--accent-green)' : 'var(--accent-red)',
+              fontFamily: 'var(--font-mono)', fontSize: '0.88rem', fontWeight: 600,
+            }}>
+              DKIM: {email.dkim_pass ? '✓ PASS' : '✗ FAIL'}
+            </span>
+          </div>
 
           {email.malicious_urls?.length > 0 && (
             <>
               <hr />
-              <h4>Malicious URLs</h4>
+              <h4>⚠ Malicious URLs Detected</h4>
               <ul>
                 {email.malicious_urls.map((url, i) => (
                   <li key={i} className="malicious-url">{url}</li>
@@ -52,7 +60,9 @@ export function EmailDetailModal({ email, onClose }) {
 
           <h4>AI Analysis Reasons</h4>
           <ul>
-            {(email.reasons || []).map((r, i) => <li key={i}>{r}</li>)}
+            {(email.reasons || []).map((r, i) => (
+              <li key={i}>{r}</li>
+            ))}
           </ul>
 
           {email.impersonation_target && (
@@ -62,7 +72,9 @@ export function EmailDetailModal({ email, onClose }) {
           )}
 
           {email.urgency_flag && (
-            <p className="urgency-flag">⚠️ Urgency language detected</p>
+            <p className="urgency-flag">
+              ⚠️ Urgency language detected in this email
+            </p>
           )}
         </div>
       </div>

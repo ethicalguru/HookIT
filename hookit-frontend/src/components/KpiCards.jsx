@@ -1,28 +1,8 @@
 const KPI_ITEMS = [
-  {
-    icon: '📧',
-    label: 'Total Emails',
-    key: 'total',
-    color: '#60a5fa',
-  },
-  {
-    icon: '✅',
-    label: 'Safe',
-    key: 'safe',
-    color: '#4ade80',
-  },
-  {
-    icon: '⚠️',
-    label: 'Suspicious',
-    key: 'suspicious',
-    color: '#fb923c',
-  },
-  {
-    icon: '🎣',
-    label: 'Phishing',
-    key: 'phishing',
-    color: '#f87171',
-  },
+  { icon: '📧', label: 'Total Emails', key: 'total',      theme: 'blue' },
+  { icon: '✅', label: 'Safe',         key: 'safe',       theme: 'green' },
+  { icon: '⚠️', label: 'Suspicious',   key: 'suspicious', theme: 'amber' },
+  { icon: '🎣', label: 'Phishing',     key: 'phishing',   theme: 'red' },
 ]
 
 export default function KpiCards({ stats }) {
@@ -44,10 +24,8 @@ export default function KpiCards({ stats }) {
     <div className="kpi-grid">
       {KPI_ITEMS.map((item) => (
         <div className="kpi-card" key={item.key}>
-          <span className="kpi-icon">{item.icon}</span>
-          <div className="kpi-value" style={{ color: item.color }}>
-            {stats?.[item.key] ?? '—'}
-          </div>
+          <div className={`kpi-icon-wrap ${item.theme}`}>{item.icon}</div>
+          <div className={`kpi-value ${item.theme}`}>{stats?.[item.key] ?? '—'}</div>
           <div className="kpi-label">{item.label}</div>
         </div>
       ))}

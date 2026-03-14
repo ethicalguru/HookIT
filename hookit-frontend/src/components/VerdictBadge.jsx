@@ -1,7 +1,3 @@
-// ═══════════════════════════════════════════════
-// VerdictBadge — coloured pill badge
-// ═══════════════════════════════════════════════
-
 const BADGE = {
   safe:        { label: '✓ Safe',        className: 'badge-safe' },
   suspicious:  { label: '⚠ Suspicious',  className: 'badge-suspicious' },
@@ -14,8 +10,6 @@ const BADGE = {
 export function VerdictBadge({ verdict }) {
   const config = BADGE[verdict] || { label: verdict || '—', className: '' }
   return (
-    <span className={`verdict-badge ${config.className}`}>
-      {config.label}
-    </span>
+    <span className={`verdict-badge ${config.className}`}>{config.label}</span>
   )
 }

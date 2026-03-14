@@ -14,26 +14,25 @@ function ShieldLogo() {
   return (
     <div className="brand-block">
       <div className="brand-mark">
-        <svg viewBox="0 0 24 24" width="22" height="22">
-          <path
-            d="M12 2L20 5V11C20 16.25 16.72 20.94 12 22C7.28 20.94 4 16.25 4 11V5L12 2Z"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M8 12L10.7 14.7L16.5 8.9"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path d="M12 2L20 5V11C20 16.25 16.72 20.94 12 22C7.28 20.94 4 16.25 4 11V5L12 2Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M8 12L10.7 14.7L16.5 8.9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </div>
       <span className="logo-text">HookIT</span>
     </div>
+  )
+}
+
+function StatusDot() {
+  return (
+    <span style={{
+      display: 'inline-block', width: 7, height: 7,
+      borderRadius: '50%', background: 'var(--accent-green)',
+      boxShadow: '0 0 8px rgba(16,185,129,0.5)',
+      animation: 'glow-pulse 3s ease-in-out infinite',
+      marginRight: 6,
+    }} />
   )
 }
 
@@ -59,11 +58,9 @@ export default function Dashboard({ session }) {
 
   useEffect(() => {
     let ignore = false
-
     const onboardUser = async () => {
       setOnboardLoading(true)
       setOnboardError('')
-
       try {
         const response = await fetch(`${API_URL}/api/onboard`, {
           method: 'POST',
@@ -72,94 +69,57 @@ export default function Dashboard({ session }) {
             Authorization: `Bearer ${session.access_token}`,
           },
         })
-
-        if (!response.ok) {
-          throw new Error(`Onboard failed with status ${response.status}`)
-        }
-
+        if (!response.ok) throw new Error(`Onboard failed with status ${response.status}`)
         const data = await response.json()
-
-        if (!ignore) {
-          setProxyAddress(data?.proxyAddress ?? '')
-        }
+        if (!ignore) setProxyAddress(data?.proxyAddress ?? '')
       } catch (error) {
         console.error('Onboard error:', error)
-        if (!ignore) {
-          setOnboardError('Could not connect your proxy address.')
-        }
+        if (!ignore) setOnboardError('Could not connect your proxy address.')
       } finally {
-        if (!ignore) {
-          setOnboardLoading(false)
-        }
+        if (!ignore) setOnboardLoading(false)
       }
     }
-
     onboardUser()
-
-    return () => {
-      ignore = true
-    }
+    return () => { ignore = true }
   }, [session.access_token])
 
   useEffect(() => {
     const channel = supabase
       .channel(`emails-${session.user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'emails',
-          filter: `user_id=eq.${session.user.id}`,
-        },
-        () => {
-          stats.refetch()
-        }
-      )
+      .on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'emails',
+        filter: `user_id=eq.${session.user.id}`,
+      }, () => { stats.refetch() })
       .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
+    return () => { supabase.removeChannel(channel) }
   }, [session.user.id, stats])
 
   useEffect(() => {
     if (!copied) return
-
-    const timer = window.setTimeout(() => {
-      setCopied(false)
-    }, 2000)
-
+    const timer = window.setTimeout(() => setCopied(false), 2000)
     return () => window.clearTimeout(timer)
   }, [copied])
 
   const handleCopy = async () => {
     if (!proxyAddress) return
-
-    try {
-      await navigator.clipboard.writeText(proxyAddress)
-      setCopied(true)
-    } catch (error) {
-      console.error('Clipboard error:', error)
-    }
+    try { await navigator.clipboard.writeText(proxyAddress); setCopied(true) }
+    catch (error) { console.error('Clipboard error:', error) }
   }
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error('Sign out failed:', error)
-    }
+    if (error) console.error('Sign out failed:', error)
   }
 
   return (
     <div className="dashboard-root">
       <header className="dash-header">
-        <div className="dash-header-left">
-          <ShieldLogo />
-        </div>
+        <div className="dash-header-left"><ShieldLogo /></div>
 
         <div className="proxy-bar" aria-label="Proxy address">
-          <span className="proxy-label">Proxy Inbox</span>
+          <span className="proxy-label">
+            <StatusDot />Proxy
+          </span>
           <div className="proxy-address">
             {onboardLoading ? 'Connecting…' : proxyAddress || 'Unavailable'}
           </div>
@@ -169,18 +129,14 @@ export default function Dashboard({ session }) {
             onClick={handleCopy}
             disabled={!proxyAddress}
           >
-            {copied ? 'Copied ✓' : 'Copy'}
+            {copied ? '✓ Copied' : 'Copy'}
           </button>
         </div>
 
         <div className="user-info">
-          {avatarUrl ? (
-            <img className="avatar" src={avatarUrl} alt={userName} />
-          ) : (
-            <div className="avatar avatar-fallback" aria-hidden="true">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-          )}
+          {avatarUrl
+            ? <img className="avatar" src={avatarUrl} alt={userName} />
+            : <div className="avatar avatar-fallback" aria-hidden="true">{userName.charAt(0).toUpperCase()}</div>}
           <div className="user-meta">
             <span className="user-name">{userName}</span>
             <span className="user-email">{session?.user?.email}</span>
@@ -194,9 +150,7 @@ export default function Dashboard({ session }) {
       <main className="dash-main">
         {(stats.error || onboardError) && (
           <div className="error-banner">
-            <span>
-              {stats.error ? 'Could not load stats. Retry?' : onboardError}
-            </span>
+            <span>{stats.error ? 'Could not load stats. Retry?' : onboardError}</span>
             {stats.error && (
               <button className="error-retry" type="button" onClick={stats.refetch}>
                 Retry
@@ -205,14 +159,17 @@ export default function Dashboard({ session }) {
           </div>
         )}
 
+        <div className="section-label">Threat Overview</div>
         <KpiCards stats={stats.loading ? null : stats.data} />
 
+        <div className="section-label">Analytics</div>
         <div className="charts-grid">
           <EmailVolumeChart data={stats.loading ? null : stats.data?.volumeByDay} />
           <VerdictPie data={stats.loading ? null : stats.data} />
           <BrandsBarChart data={stats.loading ? null : stats.data?.topBrands} />
         </div>
 
+        <div className="section-label">Email Feed</div>
         <div className="tab-bar">
           <button
             className={activeTab === 'emails' ? 'tab active' : 'tab'}
@@ -239,10 +196,7 @@ export default function Dashboard({ session }) {
         </div>
 
         {selectedEmail && (
-          <EmailDetailModal
-            email={selectedEmail}
-            onClose={() => setSelectedEmail(null)}
-          />
+          <EmailDetailModal email={selectedEmail} onClose={() => setSelectedEmail(null)} />
         )}
       </main>
     </div>
