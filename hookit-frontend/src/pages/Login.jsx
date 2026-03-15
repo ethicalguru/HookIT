@@ -14,7 +14,7 @@ function GoogleIcon() {
 function BrandLogo() {
   return (
     <div className="brand-block" style={{ justifyContent: 'center', marginBottom: 24 }}>
-      <img src="/logo.svg" alt="HookIT" style={{ height: 56, width: 'auto' }} />
+      <img src="/logo.png" alt="HookIT" style={{ height: 56, width: 'auto' }} />
     </div>
   )
 }

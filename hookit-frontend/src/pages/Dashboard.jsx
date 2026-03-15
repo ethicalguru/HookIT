@@ -13,7 +13,7 @@ import '../styles/dashboard.css'
 function BrandLogo({ height = 28 }) {
   return (
     <div className="brand-block">
-      <img src="/logo.svg" alt="HookIT" style={{ height, width: 'auto' }} />
+      <img src="/logo.png" alt="HookIT" style={{ height, width: 'auto' }} />
     </div>
   )
 }
