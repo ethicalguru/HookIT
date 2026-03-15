@@ -952,10 +952,7 @@
   gap: 6px;
 }
 
-.login-footnote::before {
-  content: '🔒';
-  font-size: 0.65rem;
-}
+.login-footnote::before { display: none; }
 
 /* ── RECHARTS OVERRIDES ── */
 .recharts-default-legend { font-size: 0.8rem !important; }

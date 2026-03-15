@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 260" fill="none">
+  <!-- Fishing line from top -->
+  <line x1="173" y1="0" x2="173" y2="68" stroke="#2BBCB3" stroke-width="4.5"/>
+
+  <!-- Fishing hook -->
+  <path d="M173 68 C173 68, 173 90, 160 110 C147 130, 130 142, 130 160 C130 178, 144 188, 158 182 C172 176, 178 160, 173 148 C168 136, 158 130, 150 126" 
+        stroke="#2BBCB3" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <!-- Hook anchor/eye -->
+  <circle cx="147" cy="123" r="4.5" fill="none" stroke="#2BBCB3" stroke-width="3"/>
+
+  <!-- h -->
+  <path d="M20 80 L20 230 M20 165 Q20 140, 50 138 Q72 138, 78 158 L78 230" 
+        stroke="#1B2A3D" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- First o — formed partly by the hook area -->
+  <ellipse cx="142" cy="185" rx="42" ry="45" stroke="#1B2A3D" stroke-width="26" fill="none"/>
+
+  <!-- Second o -->
+  <ellipse cx="248" cy="185" rx="42" ry="45" stroke="#1B2A3D" stroke-width="26" fill="none"/>
+
+  <!-- k -->
+  <path d="M318 80 L318 230" stroke="#1B2A3D" stroke-width="26" stroke-linecap="round" fill="none"/>
+  <path d="M318 180 L358 140" stroke="#1B2A3D" stroke-width="24" stroke-linecap="round" fill="none"/>
+  <path d="M338 165 L365 230" stroke="#1B2A3D" stroke-width="24" stroke-linecap="round" fill="none"/>
+
+  <!-- i (stem) -->
+  <line x1="420" y1="150" x2="420" y2="230" stroke="#1B2A3D" stroke-width="26" stroke-linecap="round"/>
+  <!-- i (dot - teal) -->
+  <circle cx="420" cy="112" r="16" fill="#2BBCB3"/>
+
+  <!-- t -->
+  <line x1="480" y1="100" x2="480" y2="230" stroke="#1B2A3D" stroke-width="26" stroke-linecap="round"/>
+  <line x1="458" y1="148" x2="508" y2="148" stroke="#1B2A3D" stroke-width="16" stroke-linecap="round"/>
+</svg>

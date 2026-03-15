@@ -10,16 +10,10 @@ import { QuarantineInbox } from '../components/QuarantineInbox'
 import { EmailDetailModal } from '../components/EmailDetailModal'
 import '../styles/dashboard.css'
 
-function ShieldLogo() {
+function BrandLogo({ height = 28 }) {
   return (
     <div className="brand-block">
-      <div className="brand-mark">
-        <svg viewBox="0 0 24 24" width="20" height="20">
-          <path d="M12 2L20 5V11C20 16.25 16.72 20.94 12 22C7.28 20.94 4 16.25 4 11V5L12 2Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-          <path d="M8 12L10.7 14.7L16.5 8.9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
-      <span className="logo-text">HookIT</span>
+      <img src="/logo.svg" alt="HookIT" style={{ height, width: 'auto' }} />
     </div>
   )
 }
@@ -115,7 +109,7 @@ export default function Dashboard({ session }) {
   return (
     <div className="dashboard-root">
       <header className="dash-header">
-        <div className="dash-header-left"><ShieldLogo /></div>
+        <div className="dash-header-left"><BrandLogo height={28} /></div>
 
         <div className="proxy-bar" aria-label="Proxy address">
           <span className="proxy-label">

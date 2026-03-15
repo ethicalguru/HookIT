@@ -11,27 +11,51 @@ function GoogleIcon() {
   )
 }
 
-function ShieldLogo() {
+function BrandLogo() {
   return (
-    <div className="brand-block" aria-hidden="true">
-      <div className="brand-mark">
-        <svg viewBox="0 0 24 24" width="26" height="26">
-          <path d="M12 2L20 5V11C20 16.25 16.72 20.94 12 22C7.28 20.94 4 16.25 4 11V5L12 2Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-          <path d="M8 12L10.7 14.7L16.5 8.9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </div>
-      <span className="logo-text">HookIT</span>
+    <div className="brand-block" style={{ justifyContent: 'center', marginBottom: 24 }}>
+      <img src="/logo.svg" alt="HookIT" style={{ height: 56, width: 'auto' }} />
     </div>
   )
 }
 
-function FeatureItem({ icon, title, desc }) {
+function FeatureIcon({ type }) {
+  const icons = {
+    layers: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    ),
+    bolt: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+      </svg>
+    ),
+    shield: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l8 3v6c0 5.25-3.28 9.94-8 11-4.72-1.06-8-5.75-8-11V5l8-3z"/><path d="M9 12l2 2 4-4"/>
+      </svg>
+    ),
+  }
+  return (
+    <span style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      width: 32, height: 32, borderRadius: 8,
+      background: 'var(--accent-light)', color: 'var(--accent)',
+      flexShrink: 0,
+    }}>
+      {icons[type]}
+    </span>
+  )
+}
+
+function FeatureItem({ iconType, title, desc }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'flex-start', gap: '12px',
       textAlign: 'left', padding: '10px 0',
     }}>
-      <span style={{ fontSize: '1.1rem', lineHeight: 1 }}>{icon}</span>
+      <FeatureIcon type={iconType} />
       <div>
         <div style={{
           fontSize: '0.85rem', fontWeight: 600,
@@ -63,7 +87,7 @@ export default function Login() {
       <div className="login-bg-orb login-bg-orb-two" />
 
       <div className="login-card">
-        <ShieldLogo />
+        <BrandLogo />
 
         <p className="login-kicker">AI-Powered Phishing Detection</p>
         <h1 className="login-title">
@@ -85,23 +109,26 @@ export default function Login() {
           borderTop: '1px solid var(--border)',
         }}>
           <FeatureItem
-            icon="🔬"
+            iconType="layers"
             title="3-Layer Analysis"
             desc="URL scanning, header verification, and AI content analysis"
           />
           <FeatureItem
-            icon="⚡"
+            iconType="bolt"
             title="Real-Time Protection"
             desc="Emails screened and scored before reaching your inbox"
           />
           <FeatureItem
-            icon="🛡️"
+            iconType="shield"
             title="Auto-Quarantine"
             desc="High-risk emails isolated automatically for review"
           />
         </div>
 
         <p className="login-footnote">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
           Emails are analyzed, never stored in plain text
         </p>
       </div>
