@@ -59,7 +59,6 @@ export default function Dashboard({ session }) {
     let ignore = false
     const onboardUser = async () => {
       setOnboardLoading(true)
-      setOnboardError('')
       try {
         const response = await fetch(`${API_URL}/api/onboard`, {
           method: 'POST',
