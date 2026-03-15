@@ -54,7 +54,7 @@ export function EmailTable({ emails: emailsProp = [], onSelect }) {
     })
 
     return copy
-  }, [emails, sortBy, sortDir])
+  }, [emailsProp, sortBy, sortDir])
 
   function toggleSort(column) {
     if (sortBy === column) {

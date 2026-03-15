@@ -1,7 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Component } from 'react'
 import { supabase } from './supabaseClient'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+  componentDidCatch(error, info) {
+    console.error('ErrorBoundary caught:', error, info)
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: 40, color: '#e8ecf4', fontFamily: 'Outfit, sans-serif', textAlign: 'center' }}>
+          <h2 style={{ color: '#ef4444' }}>Something went wrong</h2>
+          <pre style={{ color: '#f59e0b', fontSize: 13, whiteSpace: 'pre-wrap', maxWidth: 600, margin: '16px auto' }}>
+            {this.state.error?.message || 'Unknown error'}
+          </pre>
+          <button onClick={() => window.location.reload()}
+            style={{ marginTop: 16, padding: '10px 24px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>
+            Reload
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function App() {
   const [session, setSession] = useState(null)
@@ -48,7 +78,11 @@ function App() {
     )
   }
 
-  return session ? <Dashboard session={session} /> : <Login />
+  return (
+    <ErrorBoundary>
+      {session ? <Dashboard session={session} /> : <Login />}
+    </ErrorBoundary>
+  )
 }
 
 export default App

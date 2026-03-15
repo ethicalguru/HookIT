@@ -1,1 +1,16 @@
-{"projectId":"prj_v7HvFlCF4syzRdwfCiDzRzyyr6bR","orgId":"team_sO7tNr8MO3deoyXLUNwA77Q9","projectName":"hookit-frontend"}
+{
+  "projectId": "prj_v7HvFlCF4syzRdwfCiDzRzyyr6bR",
+  "orgId": "team_sO7tNr8MO3deoyXLUNwA77Q9",
+  "projectName": "hookit-frontend",
+  "settings": {
+    "createdAt": 1773465049716,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}
