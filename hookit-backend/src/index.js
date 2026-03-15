@@ -17,7 +17,7 @@ import { statsRoutes }       from './api/stats.js'
 
 // ── Env validation ─────────────────────────────────────────────────────────
 const CRITICAL_ENV = ['SUPABASE_URL', 'SUPABASE_KEY', 'SUPABASE_JWT_SECRET']
-const OPTIONAL_ENV = ['MG_KEY', 'MG_DOMAIN', 'PROXY_DOMAIN', 'CLAUDE_KEY', 'GOOGLE_SB_KEY']
+const OPTIONAL_ENV = ['MG_KEY', 'MG_DOMAIN', 'PROXY_DOMAIN', 'GEMINI_KEY', 'GOOGLE_SB_KEY']
 
 const missingCritical = CRITICAL_ENV.filter((k) => !process.env[k])
 if (missingCritical.length) {
