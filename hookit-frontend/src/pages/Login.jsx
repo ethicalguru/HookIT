@@ -38,7 +38,7 @@ function FeatureItem({ icon, title, desc }) {
           color: 'var(--text-primary)', marginBottom: '2px',
         }}>{title}</div>
         <div style={{
-          fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4,
+          fontSize: '0.78rem', color: 'var(--text-tertiary)', lineHeight: 1.4,
         }}>{desc}</div>
       </div>
     </div>
@@ -68,7 +68,7 @@ export default function Login() {
         <p className="login-kicker">AI-Powered Phishing Detection</p>
         <h1 className="login-title">
           Stop phishing<br />
-          <span style={{ color: 'var(--accent-cyan)' }}>before it strikes</span>
+          <span style={{ color: 'var(--accent)' }}>before it strikes</span>
         </h1>
         <p className="login-subtitle">
           Protect your inbox with an intelligent email screening layer that

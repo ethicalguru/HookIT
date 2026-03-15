@@ -28,9 +28,7 @@ function StatusDot() {
   return (
     <span style={{
       display: 'inline-block', width: 7, height: 7,
-      borderRadius: '50%', background: 'var(--accent-green)',
-      boxShadow: '0 0 8px rgba(16,185,129,0.5)',
-      animation: 'glow-pulse 3s ease-in-out infinite',
+      borderRadius: '50%', background: 'var(--color-safe)',
       marginRight: 6,
     }} />
   )

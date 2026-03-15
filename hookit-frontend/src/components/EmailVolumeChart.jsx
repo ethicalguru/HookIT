@@ -1,12 +1,13 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 const TOOLTIP_STYLE = {
-  background: 'rgba(14, 22, 48, 0.95)',
-  border: '1px solid rgba(59, 130, 246, 0.2)',
+  background: 'rgba(255, 255, 255, 0.95)',
+  border: '1px solid rgba(0, 0, 0, 0.06)',
   borderRadius: '10px',
-  color: '#e8ecf4',
-  backdropFilter: 'blur(8px)',
-  boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+  color: '#1d1d1f',
+  backdropFilter: 'blur(12px)',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+  fontSize: '13px',
 }
 
 export default function EmailVolumeChart({ data }) {
@@ -23,35 +24,28 @@ export default function EmailVolumeChart({ data }) {
             <LineChart data={data}>
               <defs>
                 <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#3b82f6" />
-                  <stop offset="100%" stopColor="#06d6f2" />
+                  <stop offset="0%" stopColor="#0071e3" />
+                  <stop offset="100%" stopColor="#007aff" />
                 </linearGradient>
-                <filter id="lineGlow">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(59,130,246,0.06)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.04)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: '#5a6b8a', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                tick={{ fill: '#86868b', fontSize: 11, fontFamily: 'Inter, sans-serif' }}
                 tickFormatter={(d) => d.slice(5)}
-                axisLine={{ stroke: 'rgba(59,130,246,0.1)' }}
+                axisLine={{ stroke: 'rgba(0,0,0,0.06)' }}
                 tickLine={false}
               />
               <YAxis
                 allowDecimals={false}
-                tick={{ fill: '#5a6b8a', fontSize: 11, fontFamily: 'JetBrains Mono' }}
+                tick={{ fill: '#86868b', fontSize: 11, fontFamily: 'Inter, sans-serif' }}
                 axisLine={false}
                 tickLine={false}
               />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
-                labelStyle={{ color: '#5a6b8a', fontFamily: 'JetBrains Mono', fontSize: '0.78rem' }}
-                cursor={{ stroke: 'rgba(6,214,242,0.2)', strokeWidth: 1 }}
+                labelStyle={{ color: '#86868b', fontSize: '0.78rem' }}
+                cursor={{ stroke: 'rgba(0,113,227,0.15)', strokeWidth: 1 }}
               />
               <Line
                 type="monotone"
@@ -59,8 +53,7 @@ export default function EmailVolumeChart({ data }) {
                 stroke="url(#lineGrad)"
                 strokeWidth={2.5}
                 dot={false}
-                activeDot={{ r: 5, fill: '#06d6f2', stroke: '#0a0f1e', strokeWidth: 2 }}
-                filter="url(#lineGlow)"
+                activeDot={{ r: 5, fill: '#0071e3', stroke: '#ffffff', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
