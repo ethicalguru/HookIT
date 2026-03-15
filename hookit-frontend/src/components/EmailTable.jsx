@@ -113,7 +113,7 @@ export function EmailTable({ onSelect }) {
         <thead>
           <tr>
             <th>
-              <button type="button" className="th-btn" onClick={() => toggleSort('from_address')}>
+              <button type="button" className="th-btn" onClick={() => toggleSort('sender')}>
                 Sender
               </button>
             </th>
@@ -124,7 +124,7 @@ export function EmailTable({ onSelect }) {
               </button>
             </th>
             <th>
-              <button type="button" className="th-btn" onClick={() => toggleSort('score')}>
+              <button type="button" className="th-btn" onClick={() => toggleSort('final_score')}>
                 Score
               </button>
             </th>
@@ -139,8 +139,8 @@ export function EmailTable({ onSelect }) {
         <tbody>
           {sortedEmails.map((email) => (
             <tr key={email.id}>
-              <td className="truncate-cell" title={email.from_address}>
-                {email.from_address || 'Unknown sender'}
+              <td className="truncate-cell" title={email.sender}>
+                {email.sender || 'Unknown sender'}
               </td>
               <td className="truncate-cell" title={email.subject}>
                 {email.subject || '(No subject)'}
@@ -149,8 +149,8 @@ export function EmailTable({ onSelect }) {
                 <VerdictBadge verdict={email.verdict} />
               </td>
               <td>
-                <span className={`score-pill ${getScoreClass(email.score)}`}>
-                  {email.score ?? 0}
+                <span className={`score-pill ${getScoreClass(email.final_score)}`}>
+                  {email.final_score ?? 0}
                 </span>
               </td>
               <td>{formatRelativeTime(email.received_at)}</td>

@@ -4,19 +4,19 @@ import { ScoreBar } from './ScoreBar'
 import { VerdictBadge } from './VerdictBadge'
 
 function readAnalysis(email) {
-  const analysis = email?.analysis || {}
+  if (!email) return { urlScore: 0, headerScore: 0, aiScore: 0, finalScore: 0, spf: 'unknown', dkim: 'unknown', maliciousUrls: [], reasons: [], impersonationTarget: null, urgent: false }
 
   return {
-    urlScore: analysis.urlScore ?? analysis.url_score ?? 0,
-    headerScore: analysis.headerScore ?? analysis.header_score ?? 0,
-    aiScore: analysis.aiScore ?? analysis.ai_score ?? 0,
-    finalScore: analysis.finalScore ?? analysis.final_score ?? email?.score ?? 0,
-    spf: analysis.spf ?? 'unknown',
-    dkim: analysis.dkim ?? 'unknown',
-    maliciousUrls: analysis.maliciousUrls ?? analysis.malicious_urls ?? [],
-    reasons: analysis.reasons ?? [],
-    impersonationTarget: analysis.impersonationTarget ?? analysis.impersonation_target ?? email?.brand,
-    urgent: Boolean(analysis.urgent),
+    urlScore: email.url_score ?? 0,
+    headerScore: email.header_score ?? 0,
+    aiScore: email.ai_score ?? 0,
+    finalScore: email.final_score ?? 0,
+    spf: email.spf_pass ? 'pass' : 'fail',
+    dkim: email.dkim_pass ? 'pass' : 'fail',
+    maliciousUrls: email.malicious_urls ?? [],
+    reasons: email.reasons ?? [],
+    impersonationTarget: email.impersonation_target ?? null,
+    urgent: Boolean(email.urgency_flag),
   }
 }
 
@@ -39,7 +39,7 @@ export function EmailDetailModal({ email, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="email-modal"
+        className="modal"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -58,7 +58,7 @@ export function EmailDetailModal({ email, onClose }) {
           <div className="modal-meta-grid">
             <div className="meta-card">
               <span className="meta-label">From</span>
-              <span className="meta-value">{email.from_address || 'Unknown sender'}</span>
+              <span className="meta-value">{email.sender || 'Unknown sender'}</span>
             </div>
             <div className="meta-card">
               <span className="meta-label">Subject</span>

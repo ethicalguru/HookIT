@@ -903,6 +903,225 @@
   margin-top: 8px;
 }
 
+/* ─── TABLE UTILITY CLASSES ─── */
+.th-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.th-btn:hover {
+  color: var(--accent-cyan);
+}
+
+.truncate-cell {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-row-action {
+  padding: 6px 14px;
+  border-radius: var(--radius-xs);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.btn-row-action:hover {
+  background: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.score-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  min-width: 36px;
+  text-align: center;
+}
+
+.score-pill.score-safe {
+  color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.score-pill.score-warning {
+  color: var(--accent-amber);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.score-pill.score-danger {
+  color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.inline-error {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.06);
+  color: var(--accent-rose);
+  font-size: 0.85rem;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.quarantine-wrap {
+  padding: 4px;
+}
+
+/* ─── MODAL DETAIL CLASSES ─── */
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+
+.modal-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.meta-card {
+  padding: 12px 14px;
+  background: rgba(6, 10, 20, 0.4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+}
+
+.meta-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.meta-value {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.modal-section {
+  margin-bottom: 18px;
+}
+
+.modal-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.auth-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.auth-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.auth-pill.pass {
+  color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.auth-pill.fail {
+  color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.brand-chip {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  color: var(--accent-amber);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.urgency-banner {
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: var(--radius-xs);
+  color: var(--accent-rose);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.modal-empty {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}
+
+.modal-list {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.modal-list li {
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
 /* ─── SCORE BAR ─── */
 .score-bar {
   display: flex;

@@ -139,8 +139,8 @@ export function QuarantineInbox({ onSelect }) {
 
               return (
                 <tr key={email.id}>
-                  <td className="truncate-cell" title={email.from_address}>
-                    {email.from_address || 'Unknown sender'}
+                  <td className="truncate-cell" title={email.sender}>
+                    {email.sender || 'Unknown sender'}
                   </td>
                   <td className="truncate-cell" title={email.subject}>
                     {email.subject || '(No subject)'}
@@ -149,7 +149,7 @@ export function QuarantineInbox({ onSelect }) {
                     <VerdictBadge verdict={email.verdict} />
                   </td>
                   <td>
-                    <span className="score-pill score-danger">{email.score ?? 0}</span>
+                    <span className="score-pill score-danger">{email.final_score ?? 0}</span>
                   </td>
                   <td>{new Date(email.received_at).toLocaleString()}</td>
                   <td>
