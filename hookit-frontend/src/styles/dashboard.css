@@ -865,10 +865,10 @@
 .login-card {
   position: relative;
   z-index: 1;
-  width: min(100%, 400px);
+  width: min(100%, 460px);
   background: var(--bg-primary);
   border-radius: var(--radius-2xl);
-  padding: 48px 40px;
+  padding: 52px 44px;
   text-align: center;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-lg);
