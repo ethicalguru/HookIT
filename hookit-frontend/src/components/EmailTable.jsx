@@ -1,6 +1,5 @@
 // EmailTable.jsx
-import React, { useEffect, useMemo, useState } from 'react'
-import { supabase } from '../supabaseClient'
+import React, { useMemo, useState } from 'react'
 import { VerdictBadge } from './VerdictBadge'
 
 function formatRelativeTime(dateString) {
@@ -28,45 +27,12 @@ function getScoreClass(score = 0) {
   return 'score-danger'
 }
 
-export function EmailTable({ onSelect }) {
-  const [emails, setEmails] = useState([])
-  const [loading, setLoading] = useState(true)
+export function EmailTable({ emails: emailsProp = [], onSelect }) {
   const [sortBy, setSortBy] = useState('received_at')
   const [sortDir, setSortDir] = useState('desc')
 
-  useEffect(() => {
-    let mounted = true
-
-    async function loadEmails() {
-      setLoading(true)
-
-      const { data, error } = await supabase
-        .from('emails')
-        .select('*')
-        .order('received_at', { ascending: false })
-        .limit(200)
-
-      if (!mounted) return
-
-      if (error) {
-        console.error('Failed to load emails:', error)
-        setEmails([])
-      } else {
-        setEmails(data || [])
-      }
-
-      setLoading(false)
-    }
-
-    loadEmails()
-
-    return () => {
-      mounted = false
-    }
-  }, [])
-
   const sortedEmails = useMemo(() => {
-    const copy = [...emails]
+    const copy = [...emailsProp]
 
     copy.sort((a, b) => {
       let left = a[sortBy]
@@ -97,10 +63,6 @@ export function EmailTable({ onSelect }) {
       setSortBy(column)
       setSortDir(column === 'received_at' ? 'desc' : 'asc')
     }
-  }
-
-  if (loading) {
-    return <div className="table-empty">Loading emails…</div>
   }
 
   if (sortedEmails.length === 0) {

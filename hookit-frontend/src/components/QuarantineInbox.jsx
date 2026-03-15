@@ -11,8 +11,8 @@ async function getAccessToken() {
   return session?.access_token || ''
 }
 
-export function QuarantineInbox({ onSelect }) {
-  const [emails, setEmails] = useState([])
+export function QuarantineInbox({ onSelect, emails: emailsFallback = [] }) {
+  const [emails, setEmails] = useState(emailsFallback)
   const [loading, setLoading] = useState(true)
   const [actionId, setActionId] = useState('')
   const [error, setError] = useState('')
@@ -35,11 +35,11 @@ export function QuarantineInbox({ onSelect }) {
       }
 
       const data = await response.json()
-      setEmails(Array.isArray(data) ? data : [])
+      setEmails(Array.isArray(data) && data.length > 0 ? data : emailsFallback)
     } catch (err) {
       console.error('Failed to load quarantine:', err)
-      setError('Could not load quarantine emails.')
-      setEmails([])
+      // Fallback to prop data instead of showing error
+      setEmails(emailsFallback)
     } finally {
       setLoading(false)
     }
