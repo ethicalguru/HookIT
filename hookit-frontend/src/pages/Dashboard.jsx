@@ -10,7 +10,7 @@ import { QuarantineInbox } from '../components/QuarantineInbox'
 import { EmailDetailModal } from '../components/EmailDetailModal'
 import '../styles/dashboard.css'
 
-function BrandLogo({ height = 28 }) {
+function BrandLogo({ height = 36 }) {
   return (
     <div className="brand-block">
       <img src="/logo.png" alt="HookIT" style={{ height, width: 'auto' }} />

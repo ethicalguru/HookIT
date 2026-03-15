@@ -67,7 +67,7 @@ function App() {
     return (
       <div className="app-loader-screen">
         <div className="loader-brand">
-          <img src="/logo.png" alt="HookIT" style={{ height: 40, width: 'auto' }} />
+          <img src="/logo.png" alt="HookIT" style={{ height: 48, width: 'auto' }} />
         </div>
         <div className="spinner" />
         <p className="app-loader-text">Initializing secure session…</p>
